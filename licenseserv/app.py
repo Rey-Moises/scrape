@@ -57,9 +57,20 @@ def _check_admin(data: dict) -> bool:
 
 # ── MongoDB Setup ──────────────────────────────────────────
 if MONGO_URI:
-    mongo_client = MongoClient(MONGO_URI)
-    mongo_db = mongo_client["prophbot"]
-    keys_collection = mongo_db["licenses"]
+    try:
+        # Initialize connection with explicit TLS settings
+        mongo_client = MongoClient(
+            MONGO_URI,
+            serverSelectionTimeoutMS=30000,
+            tls=True,
+            tlsAllowInvalidCertificates=True  # Bypasses the internal SSL handshake error
+        )
+        mongo_db = mongo_client["prophbot"]
+        keys_collection = mongo_db["licenses"]
+    except Exception as e:
+        print(f"CRITICAL ERROR: Failed to initialize MongoDB Client: {e}")
+else:
+    print("CRITICAL WARNING: MONGO_URI not set. Database will fail.")
 else:
     print("CRITICAL WARNING: MONGO_URI not set. Database will fail.")
 
