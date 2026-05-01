@@ -31,7 +31,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 _db_lock = threading.Lock()
-_rate_limit: dict[str, list[float]] = {}
+_RATE_LIMIT_CACHE: dict[str, list[float]] = {}  # [FIX APPLIED]: Distinct, all-caps constant name
 
 def _rate_limit(max_req: int = 20, window: int = 60):
     def decorator(f):
@@ -40,11 +40,13 @@ def _rate_limit(max_req: int = 20, window: int = 60):
             ip = request.remote_addr or "unknown"
             now = time.time()
             with _db_lock:
-                reqs = [t for t in _rate_limit.get(ip, []) if now - t < window]
+                # [FIX APPLIED]: Read from the new cache name
+                reqs = [t for t in _RATE_LIMIT_CACHE.get(ip, []) if now - t < window]
                 if len(reqs) >= max_req:
                     return jsonify({"error": "Rate limited"}), 429
                 reqs.append(now)
-                _rate_limit[ip] = reqs
+                # [FIX APPLIED]: Write to the new cache name
+                _RATE_LIMIT_CACHE[ip] = reqs
             return f(*args, **kwargs)
         return wrapped
     return decorator
