@@ -21,7 +21,7 @@ app = Flask(__name__)
 
 # ── Security & Rate Limiting ──────────────────────────────
 _db_lock = threading.Lock()
-_RATE_LIMIT_CACHE: dict[str, list[float]] = {}
+_RATE_LIMIT_CACHE: dict[str, list[float]] = {}  # Collison-free dictionary name
 
 def _rate_limit(max_req: int = 20, window: int = 60):
     def decorator(f):
@@ -40,10 +40,9 @@ def _rate_limit(max_req: int = 20, window: int = 60):
     return decorator
 
 # ── Config ────────────────────────────────────────────────
-# DO NOT HARDCODE PASSWORDS HERE. Put them in Render Environment Variables!
 SECRET_KEY = os.environ.get("SECRET_KEY", "capybaracapybaracapybaracapybara")
 ADMIN_PASS = os.environ.get("ADMIN_PASS", "Cappyworks!")
-MONGO_URI  = os.environ.get("MONGO_URI", "")  
+MONGO_URI  = os.environ.get("MONGO_URI", "")
 VERSION    = "1.0"
 
 TIERS = {
