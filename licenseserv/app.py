@@ -58,12 +58,13 @@ def _check_admin(data: dict) -> bool:
 # ── MongoDB Setup ──────────────────────────────────────────
 if MONGO_URI:
     try:
-        # Initialize connection with explicit TLS settings
+        # Initialize connection with explicit TLS settings & explicit cert verification disables
         mongo_client = MongoClient(
             MONGO_URI,
             serverSelectionTimeoutMS=30000,
             tls=True,
-            tlsAllowInvalidCertificates=True  # Bypasses the internal SSL handshake error
+            tlsAllowInvalidCertificates=True,
+            tlsAllowInvalidHostnames=True # [FIX APPLIED]: Disables strict SNI checking
         )
         mongo_db = mongo_client["prophbot"]
         keys_collection = mongo_db["licenses"]
