@@ -71,9 +71,7 @@ if MONGO_URI:
         print(f"CRITICAL ERROR: Failed to initialize MongoDB Client: {e}")
 else:
     print("CRITICAL WARNING: MONGO_URI not set. Database will fail.")
-else:
-    print("CRITICAL WARNING: MONGO_URI not set. Database will fail.")
-
+    
 def load_db() -> dict:
     """Fetches all keys from MongoDB and formats them as a dictionary."""
     with _db_lock:
